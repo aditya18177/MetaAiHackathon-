@@ -15,7 +15,9 @@ RUN pip install --no-cache-dir \
     numpy \
     pydantic \
     openai \
-    gradio
+    gradio \
+    fastapi \
+    uvicorn[standard]
 
 # Copy the environment code
 COPY . .
