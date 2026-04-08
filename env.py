@@ -166,45 +166,42 @@ class DataWranglerEnv:
         )
 
     def _calculate_reward(self, last_action_success: bool) -> float:
-        """
-        Calculates reward based on progress toward golden_df.
-        We use a simple similarity score: (Matching Elements / Total Elements)
-        """
         if not last_action_success:
-            return -0.1 # Penalty for invalid action
+            return -0.1  # penalty for invalid action
 
-        # Final reward on submission
         if self.done:
-            final_score = self.get_score()
-            return final_score # Score between 0.0 and 1.0
+            return self.get_score()  # strictly in (0.05, 0.95)
 
-        return 0.05 # Small reward for a successful diagnostic/transformation step
+        return 0.05  # small reward for a valid step
 
     def get_score(self) -> float:
-        """Programmatic grader: calculates the final score (0.0 to 1.0)."""
+        """Programmatic grader: calculates the final score strictly in (0, 1) exclusive."""
         if self.df is None or self.golden_df is None:
-            return 0.0
+            return 0.05  # never return exactly 0.0
 
-        # Try to align dataframes for comparison
         try:
-            # 1. Compare columns
+            # 1. Column mismatch — partial credit
             if set(self.df.columns) != set(self.golden_df.columns):
-                return 0.5 * (len(set(self.df.columns) & set(self.golden_df.columns)) / len(set(self.golden_df.columns)))
+                common = len(set(self.df.columns) & set(self.golden_df.columns))
+                total = len(set(self.golden_df.columns))
+                raw = 0.5 * (common / total) if total > 0 else 0.05
+                return max(0.05, min(0.95, raw))
 
-            # 2. Compare shape
+            # 2. Shape mismatch — partial credit
             if self.df.shape != self.golden_df.shape:
-                return 0.5
+                return 0.4
 
-            # 3. Compare values (element-wise equality)
-            # Standardize types before comparison
-            df1 = self.df.sort_index(axis=1)
-            df2 = self.golden_df.sort_index(axis=1)
-            
-            # Use pandas testing to compare values precisely
-            # Or simplified: percentage of matching cells
-            matching_cells = (df1.values == df2.values).sum()
+            # 3. Cell-level similarity
+            df1 = self.df.sort_index(axis=1).reset_index(drop=True)
+            df2 = self.golden_df.sort_index(axis=1).reset_index(drop=True)
+
+            # Convert both to string for safe comparison across mixed types
+            matching_cells = (df1.astype(str).values == df2.astype(str).values).sum()
             total_cells = df1.size
-            
-            return matching_cells / total_cells
-        except:
-            return 0.0
+
+            raw = matching_cells / total_cells if total_cells > 0 else 0.05
+
+            # Clamp strictly to (0.05, 0.95) — never exactly 0.0 or 1.0
+            return max(0.05, min(0.95, raw))
+        except Exception:
+            return 0.05

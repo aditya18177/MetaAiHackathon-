@@ -44,9 +44,29 @@ tasks:
   - id: easy
     difficulty: easy
     objective: Clean a simple sales dataset with formatting and null issues.
+    grader:
+      module: env
+      class: DataWranglerEnv
+      method: get_score
+      score_range: [0, 1]
+      score_exclusive: true
+
   - id: medium
     difficulty: medium
     objective: Standardize user data by removing duplicates and formatting dates.
+    grader:
+      module: env
+      class: DataWranglerEnv
+      method: get_score
+      score_range: [0, 1]
+      score_exclusive: true
+
   - id: hard
     difficulty: hard
     objective: Normalize financial records with malformed column names and outliers.
+    grader:
+      module: env
+      class: DataWranglerEnv
+      method: get_score
+      score_range: [0, 1]
+      score_exclusive: true
