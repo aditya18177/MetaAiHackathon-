@@ -1,0 +1,27 @@
+name: DataWrangler-Env
+version: 0.1.0
+description: A real-world task simulation for data cleaning and transformation.
+tags:
+  - data-wrangling
+  - pandas
+  - agent-benchmarking
+  - openenv
+observation_space:
+  type: DataWranglerObservation
+  module: models
+action_space:
+  type: DataWranglerAction
+  module: models
+reward_space:
+  type: DataWranglerReward
+  module: models
+tasks:
+  - id: easy
+    difficulty: easy
+    objective: Clean a simple sales dataset with formatting and null issues.
+  - id: medium
+    difficulty: medium
+    objective: Standardize user data by removing duplicates and formatting dates.
+  - id: hard
+    difficulty: hard
+    objective: Normalize financial records with malformed column names and outliers.
