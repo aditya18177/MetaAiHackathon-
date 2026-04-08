@@ -16,34 +16,27 @@ api = FastAPI()
 
 # One env instance per task_id for grading isolation
 _envs = {
-    "easy": DataWranglerEnv(),
-    "medium": DataWranglerEnv(),
-    "hard": DataWranglerEnv(),
+    "easy":          DataWranglerEnv(),
+    "medium":        DataWranglerEnv(),
+    "hard":          DataWranglerEnv(),
+    "easy_sample":   DataWranglerEnv(),
+    "medium_sample": DataWranglerEnv(),
+    "hard_sample":   DataWranglerEnv(),
 }
+
+# Pre-initialise all envs so df is never None when grader is called
+for _tid, _e in _envs.items():
+    _e.reset(task_id=_tid)
+
 _env = _envs["easy"]  # default shared env for reset/step/state
 
 TASK_METADATA = [
-    {
-        "id": "easy",
-        "difficulty": "easy",
-        "objective": "Clean a simple sales dataset with formatting and null issues.",
-        "has_grader": True,
-        "score_range": {"min": 0.0, "max": 1.0, "exclusive": True},
-    },
-    {
-        "id": "medium",
-        "difficulty": "medium",
-        "objective": "Standardize user data by removing duplicates and formatting dates.",
-        "has_grader": True,
-        "score_range": {"min": 0.0, "max": 1.0, "exclusive": True},
-    },
-    {
-        "id": "hard",
-        "difficulty": "hard",
-        "objective": "Normalize financial records with malformed column names and outliers.",
-        "has_grader": True,
-        "score_range": {"min": 0.0, "max": 1.0, "exclusive": True},
-    },
+    {"id": "easy",          "difficulty": "easy",   "has_grader": True, "score_range": {"min": 0.0, "max": 1.0, "exclusive": True}},
+    {"id": "medium",        "difficulty": "medium", "has_grader": True, "score_range": {"min": 0.0, "max": 1.0, "exclusive": True}},
+    {"id": "hard",          "difficulty": "hard",   "has_grader": True, "score_range": {"min": 0.0, "max": 1.0, "exclusive": True}},
+    {"id": "easy_sample",   "difficulty": "easy",   "has_grader": True, "score_range": {"min": 0.0, "max": 1.0, "exclusive": True}},
+    {"id": "medium_sample", "difficulty": "medium", "has_grader": True, "score_range": {"min": 0.0, "max": 1.0, "exclusive": True}},
+    {"id": "hard_sample",   "difficulty": "hard",   "has_grader": True, "score_range": {"min": 0.0, "max": 1.0, "exclusive": True}},
 ]
 
 
@@ -87,16 +80,11 @@ def state():
 @api.post("/grade/{task_id}")
 def grade(task_id: str):
     """
-    Grader endpoint per task. Resets the env to the task, runs the grader,
-    and returns a score strictly in (0, 1).
+    Grader endpoint per task. Returns score strictly in (0, 1).
     """
     if task_id not in _envs:
         return JSONResponse(status_code=404, content={"error": f"Task '{task_id}' not found."})
-    env = _envs[task_id]
-    # If env hasn't been used yet, reset it so df is populated
-    if env.df is None:
-        env.reset(task_id=task_id)
-    score = env.get_score()
+    score = _envs[task_id].get_score()
     return JSONResponse(content={
         "task_id": task_id,
         "score": score,

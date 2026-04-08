@@ -1,7 +1,7 @@
 name: DataWrangler-Env
 version: 0.1.0
 description: A real-world task simulation for data cleaning and transformation.
-entry_point: app.py
+entry_point: server/app.py
 tags:
   - data-wrangling
   - pandas
@@ -28,30 +28,25 @@ endpoints:
   reset:
     method: POST
     path: /reset
-    description: Reset the environment to a given task. Returns initial observation.
   step:
     method: POST
     path: /step
-    description: Execute one action. Returns observation, reward, done, info.
   state:
     method: GET
     path: /state
-    description: Returns the current internal environment state.
   tasks:
     method: GET
     path: /tasks
-    description: List all tasks with grader metadata.
   grade:
     method: POST
     path: /grade/{task_id}
-    description: Run the grader for a specific task. Returns score strictly in (0, 1).
 
 max_steps: 10
 
 tasks:
   - id: easy
     difficulty: easy
-    objective: Clean a simple sales dataset with formatting and null issues.
+    objective: Drop null/invalid Price rows and cast Price to float.
     grader:
       endpoint: /grade/easy
       method: POST
@@ -60,7 +55,7 @@ tasks:
 
   - id: medium
     difficulty: medium
-    objective: Standardize user data by removing duplicates and formatting dates.
+    objective: Deduplicate users, standardize dates, fill missing emails.
     grader:
       endpoint: /grade/medium
       method: POST
@@ -69,9 +64,36 @@ tasks:
 
   - id: hard
     difficulty: hard
-    objective: Normalize financial records with malformed column names and outliers.
+    objective: Fix column names, drop redundant column, remove outliers.
     grader:
       endpoint: /grade/hard
+      method: POST
+      score_range: [0, 1]
+      score_exclusive: true
+
+  - id: easy_sample
+    difficulty: easy
+    objective: Fill missing Stock values with 0.
+    grader:
+      endpoint: /grade/easy_sample
+      method: POST
+      score_range: [0, 1]
+      score_exclusive: true
+
+  - id: medium_sample
+    difficulty: medium
+    objective: Rename salary column, cast to float, drop dept_code.
+    grader:
+      endpoint: /grade/medium_sample
+      method: POST
+      score_range: [0, 1]
+      score_exclusive: true
+
+  - id: hard_sample
+    difficulty: hard
+    objective: Drop null readings, remove outliers, cast timestamp to datetime.
+    grader:
+      endpoint: /grade/hard_sample
       method: POST
       score_range: [0, 1]
       score_exclusive: true
