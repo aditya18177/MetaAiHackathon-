@@ -5,6 +5,7 @@ from models import (
     DataWranglerObservation, 
     DataWranglerAction, 
     DataWranglerReward, 
+    EnvState,
     ColumnInfo
 )
 from tasks import TASKS
@@ -132,14 +133,16 @@ class DataWranglerEnv:
         
         return obs, step_reward, self.done, info
 
-    def state(self) -> Dict[str, Any]:
-        """Returns the current internal state."""
-        return {
-            "task_id": self.task_id,
-            "df_json": self.df.to_json() if self.df is not None else None,
-            "steps": self.steps_taken,
-            "done": self.done
-        }
+    def state(self) -> EnvState:
+        """Returns the current internal state as a typed Pydantic model."""
+        return EnvState(
+            task_id=self.task_id,
+            steps_taken=self.steps_taken,
+            max_steps=self.max_steps,
+            done=self.done,
+            cumulative_reward=round(self.cumulative_reward, 4),
+            df_shape=list(self.df.shape) if self.df is not None else None
+        )
 
     def _get_observation(self) -> DataWranglerObservation:
         """Constructs the observation model."""

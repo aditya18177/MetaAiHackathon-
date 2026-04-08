@@ -1,20 +1,45 @@
 name: DataWrangler-Env
 version: 0.1.0
 description: A real-world task simulation for data cleaning and transformation.
+entry_point: app.py
 tags:
   - data-wrangling
   - pandas
   - agent-benchmarking
   - openenv
+
 observation_space:
   type: DataWranglerObservation
   module: models
+
 action_space:
   type: DataWranglerAction
   module: models
+
 reward_space:
   type: DataWranglerReward
   module: models
+
+state_space:
+  type: EnvState
+  module: models
+
+endpoints:
+  reset:
+    method: POST
+    path: /reset
+    description: Reset the environment to a given task. Returns initial observation.
+  step:
+    method: POST
+    path: /step
+    description: Execute one action. Returns observation, reward, done, info.
+  state:
+    method: GET
+    path: /state
+    description: Returns the current internal environment state.
+
+max_steps: 10
+
 tasks:
   - id: easy
     difficulty: easy

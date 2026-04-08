@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 import gradio as gr
 import uvicorn
 from env import DataWranglerEnv
-from models import DataWranglerAction
+from models import DataWranglerAction, ResetRequest
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
@@ -24,9 +24,9 @@ def health():
 
 
 @api.post("/reset")
-def reset(request_body: dict = None):
-    task_id = (request_body or {}).get("task_id", "easy")
-    obs = _env.reset(task_id=task_id)
+def reset(body: ResetRequest = None):
+    req = body or ResetRequest()
+    obs = _env.reset(task_id=req.task_id)
     return JSONResponse(content=obs.dict())
 
 
@@ -45,7 +45,7 @@ async def step(request: Request):
 
 @api.get("/state")
 def state():
-    return JSONResponse(content=_env.state())
+    return JSONResponse(content=_env.state().dict())
 
 
 # --- Gradio UI ---

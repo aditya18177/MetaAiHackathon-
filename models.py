@@ -68,3 +68,18 @@ class DataWranglerAction(BaseModel):
 class DataWranglerReward(BaseModel):
     reward: float = Field(ge=-1.0, le=1.0, description="The reward for the last step.")
     cumulative_reward: float = Field(description="Total reward earned in the episode.")
+
+# --- State Model (returned by state() endpoint) ---
+
+class EnvState(BaseModel):
+    task_id: str = Field(description="Currently active task identifier.")
+    steps_taken: int = Field(description="Number of steps taken in the current episode.")
+    max_steps: int = Field(description="Maximum steps allowed per episode.")
+    done: bool = Field(description="Whether the current episode has ended.")
+    cumulative_reward: float = Field(description="Total reward accumulated so far.")
+    df_shape: Optional[List[int]] = Field(default=None, description="[rows, cols] of the current dataframe.")
+
+# --- Reset Request Model ---
+
+class ResetRequest(BaseModel):
+    task_id: str = Field(default="easy", description="Task to reset to: easy, medium, or hard.")
