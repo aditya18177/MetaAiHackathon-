@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "datawrangler-env"
+version = "0.1.0"
+description = "A real-world task simulation for data cleaning and transformation."
+requires-python = ">=3.10"
+dependencies = [
+    "pandas",
+    "numpy",
+    "pydantic",
+    "openai",
+    "gradio",
+    "fastapi",
+    "uvicorn[standard]",
+]
+
+[project.optional-dependencies]
+dev = ["openenv"]
+
+[tool.setuptools.packages.find]
+where = ["."]
