@@ -15,10 +15,11 @@ dependencies = [
     "gradio",
     "fastapi",
     "uvicorn[standard]",
+    "openenv-core>=0.2.0",
 ]
 
-[project.optional-dependencies]
-dev = ["openenv"]
+[project.scripts]
+server = "app:app"
 
 [tool.setuptools.packages.find]
 where = ["."]
