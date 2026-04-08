@@ -37,6 +37,14 @@ endpoints:
     method: GET
     path: /state
     description: Returns the current internal environment state.
+  tasks:
+    method: GET
+    path: /tasks
+    description: List all tasks with grader metadata.
+  grade:
+    method: POST
+    path: /grade/{task_id}
+    description: Run the grader for a specific task. Returns score strictly in (0, 1).
 
 max_steps: 10
 
@@ -45,9 +53,8 @@ tasks:
     difficulty: easy
     objective: Clean a simple sales dataset with formatting and null issues.
     grader:
-      module: env
-      class: DataWranglerEnv
-      method: get_score
+      endpoint: /grade/easy
+      method: POST
       score_range: [0, 1]
       score_exclusive: true
 
@@ -55,9 +62,8 @@ tasks:
     difficulty: medium
     objective: Standardize user data by removing duplicates and formatting dates.
     grader:
-      module: env
-      class: DataWranglerEnv
-      method: get_score
+      endpoint: /grade/medium
+      method: POST
       score_range: [0, 1]
       score_exclusive: true
 
@@ -65,8 +71,7 @@ tasks:
     difficulty: hard
     objective: Normalize financial records with malformed column names and outliers.
     grader:
-      module: env
-      class: DataWranglerEnv
-      method: get_score
+      endpoint: /grade/hard
+      method: POST
       score_range: [0, 1]
       score_exclusive: true
